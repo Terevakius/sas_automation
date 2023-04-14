@@ -1,0 +1,84 @@
+Option Explicit
+
+'*****************Star fields require update**********************
+Dim app, answer, valuation, procedure
+
+valuation = "VName" 'Name of the Valuation
+
+answer = MsgBox("Do you want to run " & valuation & "?", vbQuestion + vbYesNo)
+If answer = vbYes Then
+  Call dowork
+Else
+  WScript.Quit
+End If
+
+'shut down the app
+If not (app is Nothing) Then
+  app.Quit
+  Set app = Nothing
+End If
+
+Sub dowork()
+  On Error Resume Next
+  '___
+  'Start up Enterprise Guide using the project name
+  '___
+  Dim prjName
+  Dim prjObject
+  Dim prjArray
+  
+  'Project Name '**********************************************
+  prjArray = Array("","")
+  
+  For Each prjName In prjArray:
+    Set app = CreateObject("SASEGObject.Application.7.1")
+    If CHeckerror("CreateObject") = True Then
+      Exit Sub
+    End If
+    
+    Set prjObject = app.Open(prjName,"")
+    If Checkerror("App.Open") = True Then
+      Exit Sub
+    End If
+    
+    '___run the project___
+    
+    prjObject.run
+    If Checkerror("Project.run") = True Then
+      Exit Sub
+    End If
+    
+    '___save the new project___
+    
+    prjObject.Save
+    If Checkerror("Project.Save") = True Then
+      Exit Sub
+    End If
+    
+    '___close the project___
+    
+    prjObject.Close
+    If Checkerror("Project.Close') = True Then
+      Exit Sub
+    End If
+  Next
+  
+  MsgBox valuation & " has finished successfully."
+  
+End Sub
+
+Function Checkerror(fnName)
+  Checkerror = False
+  
+  Dim strmsg
+  Dim errNum
+  
+  If Err.Number <> 0 Then
+    strmsg = "Error #" & Hex(Err.Number) & vbCrLf & "In Function " & fnName & vbCrLf & Err.Description
+    MsgBox valuation & " " & strmsg 'Error
+    Checkerror = True
+  End If
+End Function
+    
+    
+    
